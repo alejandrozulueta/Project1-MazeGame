@@ -1,8 +1,22 @@
+using Spectre.Console;
+
 public static class GetInfo
 {
-    public static int GetValue()
+    public static DataPlayer GetPlayer(DataPlayer[] players)
     {
-        return int.Parse(Console.ReadLine());
+        Console.Clear();
+        var playerNames = players.Select(p => p.Name).ToArray();
+
+        char selectedPlayerName = AnsiConsole.Prompt(
+            new SelectionPrompt<char>()
+                .Title("[yellow]Seleccione un jugador:[/]")
+                .PageSize(10)
+                .HighlightStyle(new Style(foreground: Color.Blue))
+                .AddChoices(playerNames)
+        );
+
+        var selectedPlayer = players.First(p => p.Name == selectedPlayerName);
+        return selectedPlayer;
     }
 
     public static GameKey GetKey()

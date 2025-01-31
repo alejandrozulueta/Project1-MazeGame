@@ -81,9 +81,7 @@ public class SkillChangePosition : Skill
 
     private void ChangePosition(DataPlayer[] players, DataPlayer player)
     {
-        int numPlayer = GetInfo.GetValue();
-
-        var newPlayer = players[numPlayer];
+        var newPlayer = GetInfo.GetPlayer(players);
 
         (int, int) OldPosition = player.CurrentPosition;
 
@@ -197,7 +195,7 @@ public class SkillShowTramps : Skill
 
 public class SkillTurnBreaker : Skill
 {
-    int numPlayer;
+    DataPlayer player;
 
     public SkillTurnBreaker(int totalCooldown)
         : base(totalCooldown) { }
@@ -207,16 +205,16 @@ public class SkillTurnBreaker : Skill
 
     public void TurnBreaker(DataPlayer[] players)
     {
-        numPlayer = GetInfo.GetValue();
-        players[numPlayer].Turn = false;
+        player = GetInfo.GetPlayer(players);
+        player.Turn = false;
     }
 
     protected override void Restore(DataPlayer[] players, IMaze maze)
     {
-        if (!players[numPlayer].Turn)
-        {
-            players[numPlayer].Turn = true;
-        }
+        if (player.Turn)
+            return;
+
+        player.Turn = true;
     }
 }
 
