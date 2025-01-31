@@ -195,7 +195,7 @@ public class SkillShowTramps : Skill
 
 public class SkillTurnBreaker : Skill
 {
-    DataPlayer player;
+    DataPlayer? player;
 
     public SkillTurnBreaker(int totalCooldown)
         : base(totalCooldown) { }
@@ -211,7 +211,7 @@ public class SkillTurnBreaker : Skill
 
     protected override void Restore(DataPlayer[] players, IMaze maze)
     {
-        if (player.Turn)
+        if (player == null || player.Turn)
             return;
 
         player.Turn = true;
@@ -238,7 +238,7 @@ public class SkillInvisibility : Skill
 
     protected override void Restore(DataPlayer[] dataPlayers, IMaze maze)
     {
-        if (player is null)
+        if (player == null)
             return;
 
         if (EffectDuration == 0)
