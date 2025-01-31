@@ -111,6 +111,7 @@ public class SkillShowGoal : Skill
 public class SkillCreateTemporalWall : Skill
 {
     int EffectCooldown;
+    bool WasWall;
     (int, int) ModificateWall;
 
     public SkillCreateTemporalWall(int totalCooldown)
@@ -129,34 +130,43 @@ public class SkillCreateTemporalWall : Skill
         switch (GetInfo.GetKey())
         {
             case GameKey.Up:
+                WasWall = CompWall(maze, (y - 1, x));
                 maze.Cells[y - 1, x].IsWall = true;
                 ModificateWall = (y - 1, x);
                 break;
 
             case GameKey.Down:
+                WasWall = CompWall(maze, (y + 1, x));
                 maze.Cells[y + 1, x].IsWall = true;
                 ModificateWall = (y + 1, x);
                 break;
 
             case GameKey.Right:
+                WasWall = CompWall(maze, (y, x + 1));
                 maze.Cells[y, x + 1].IsWall = true;
                 ModificateWall = (y, x + 1);
                 break;
 
             case GameKey.Left:
+                WasWall = CompWall(maze, (y, x - 1));
                 maze.Cells[y, x - 1].IsWall = true;
                 ModificateWall = (y, x - 1);
                 break;
         }
     }
 
+    private bool CompWall(IMaze maze, (int y, int x) pos)
+    {
+        return maze.Cells[pos.y, pos.x].IsWall;
+    }
+
     protected override void Restore(DataPlayer[] dataPlayers, IMaze maze)
     {
-        if (EffectCooldown > 0)
-        {
-            EffectCooldown--;
+        if (EffectCooldown-- > 0)
             return;
-        }
+
+        if (WasWall)
+            return;
 
         maze.Cells[ModificateWall.Item1, ModificateWall.Item2].IsWall = false;
     }
