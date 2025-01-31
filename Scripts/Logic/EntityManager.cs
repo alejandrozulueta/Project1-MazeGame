@@ -92,11 +92,12 @@ public class EntityManager
         for (int i = num.players + num.playersIA; i < DataEntities.Length; i++)
         {
             var newPos = Randoms.RandomPosition(maze);
+            var minPlayerMovement = DataPlayers.Select(x => x.TotalActions).Min();
 
             DataEntities[i] = new EnemyIA()
             {
-                TotalActions = 3,
-                CurrentActions = 3,
+                TotalActions = minPlayerMovement,
+                CurrentActions = minPlayerMovement,
                 CurrentPosition = newPos,
             };
 

@@ -11,8 +11,9 @@ public class GameManager
     public GameStateVisualizer GameStateVisualizer;
     public Events Events;
     public Maze Maze { get; set; }
+    public string DefaultSavePath { get; set; }
 
-    public GameManager(DifficultySettings settings, (int, int) countPlayers)
+    public GameManager(DifficultySettings settings, (int, int) countPlayers, string defaultSavePath)
     {
         TotalTurns = 0;
         MenuManager = new MenuManager();
@@ -23,9 +24,10 @@ public class GameManager
         EntityManager = new EntityManager(countPlayers, settings.EnemyCount, Maze);
         ActionManager = new ActionManager();
         Events = new();
+        DefaultSavePath = defaultSavePath;
     }
 
-    public GameManager(GameState gameState)
+    public GameManager(GameState gameState, string defaultSavePath)
     {
         EntityManager = new EntityManager(gameState.DataEntities, gameState.DataPlayers);
         ActionManager = new();
@@ -35,9 +37,10 @@ public class GameManager
         GameStateVisualizer = new();
         Events = new();
         Maze = new Maze(gameState.Length, gameState.Width, gameState.Cells, gameState.Scape);
+        DefaultSavePath = defaultSavePath;
     }
 
-    public void SaveGame()
+    public void SaveGame(string savePath)
     {
         var saveGame = new GameState()
         {
@@ -55,11 +58,6 @@ public class GameManager
         var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
 
         string json = JsonConvert.SerializeObject(saveGame, Formatting.Indented, settings);
-
-        string targetFolder = "MazeGame";
-        string pathToMazeGame = FileManager.FindPathToFolder(targetFolder);
-        string savePath = Path.Combine(pathToMazeGame, "Saves", "saveGame.json");
-
         File.WriteAllText(savePath, json);
     }
 
@@ -69,7 +67,7 @@ public class GameManager
         while (true)
         {
             TotalTurns++;
-            SaveGame();
+            SaveGame(DefaultSavePath);
 
             TrampsManager.RestoreAllTrampsCooldown();
 

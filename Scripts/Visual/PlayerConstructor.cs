@@ -41,7 +41,7 @@ public class PlayerConstructor
                     "Asignar Habilidad",
                     "Ajustar Acciones",
                     "Ajustar Rango de Visión",
-                    "Salir"
+                    "Iniciar"
                 )
         );
 
@@ -59,9 +59,16 @@ public class PlayerConstructor
                 SetRangeOfVision();
                 break;
 
-            case "Salir":
-                exit = true;
-                return;
+            case "Iniciar":
+                if (AsignedSkill != null)
+                    exit = true;
+                else
+                {
+                    Console.Clear();
+                    AnsiConsole.MarkupLine("[bold yellow]Falta asignar la skill[/]");
+                    Thread.Sleep(1500);
+                }
+                break;
         }
     }
 
