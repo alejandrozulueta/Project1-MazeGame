@@ -3,21 +3,14 @@ using Spectre.Console;
 public class PlayerConstructor
 {
     private MenuManager menu = new MenuManager();
-
     private int Value = 0;
-
     public int Actions = 1;
     public int RangeOfVision = 1;
-    public Skill AsignedSkill;
+    public Skill? AsignedSkill;
 
     private bool exit = false;
 
     public PlayerConstructor()
-    {
-        Menu();
-    }
-
-    private void Menu()
     {
         AnsiConsole.Clear();
         AnsiConsole.Write(new FigletText("CREACIÓN DE PERSONAJE").Centered().Color(Color.Green));

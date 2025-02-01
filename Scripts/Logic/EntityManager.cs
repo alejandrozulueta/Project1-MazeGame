@@ -37,7 +37,7 @@ public class EntityManager
                 AssignedNum = i,
                 CurrentPosition = newPos,
                 Name = SetChar(),
-                AsignedSkill = dataPlayer.AsignedSkill,
+                AsignedSkill = dataPlayer.AsignedSkill!,
                 TotalActions = dataPlayer.Actions,
                 CurrentActions = dataPlayer.Actions,
                 RangeOfVision = range,

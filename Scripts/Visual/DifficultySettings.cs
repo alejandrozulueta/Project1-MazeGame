@@ -21,7 +21,7 @@ public class DifficultySettings
                 break;
 
             case GameDifficulty.Hard:
-                MazeDimensions = (30, 30);
+                MazeDimensions = (25, 25);
                 TrampCount = 20;
                 EnemyCount = 2;
                 break;

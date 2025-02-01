@@ -5,7 +5,7 @@
         public static void Main()
         {
             Console.CursorVisible = false;
-            StartScreen startScreen = new StartScreen();
+            StartScreen startScreen = new();
             startScreen.Start();
         }
     }

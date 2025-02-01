@@ -39,7 +39,7 @@ public class Events
         }
 
         AnsiConsole.Clear();
-        AnsiConsole.Render(panel);
+        AnsiConsole.Write(panel);
     }
 
     public void TrampEffect(DataPlayer player, Tramp tramp)
