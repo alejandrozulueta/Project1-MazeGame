@@ -1,74 +1,93 @@
+using System.Collections;
 using Newtonsoft.Json;
 
-public class GameManager
+public class GameManager : IEnumerable<GameState>
 {
-    public int TotalTurns { get; set; }
-    public EntityManager EntityManager { get; set; }
-    public ActionManager ActionManager { get; set; }
-    public TrampsManager TrampsManager { get; set; }
-    public MenuManager MenuManager { get; set; }
-    public VisionOutput VisionOutput { get; set; }
-    public GameStateVisualizer GameStateVisualizer;
-    public Events Events;
-    public Maze Maze { get; set; }
-    public string DefaultSavePath { get; set; }
+    private readonly DifficultySettings? settings;
+    private (int, int) countPlayers;
+    private readonly string defaultSavePath;
+    private readonly GameState? startGameState;
 
     public GameManager(DifficultySettings settings, (int, int) countPlayers, string defaultSavePath)
     {
-        TotalTurns = 0;
-        MenuManager = new MenuManager();
-        Maze = new Maze(settings.MazeDimensions);
-        VisionOutput = new();
-        GameStateVisualizer = new();
-        TrampsManager = new TrampsManager(settings.TrampCount, Maze);
-        EntityManager = new EntityManager(countPlayers, settings.EnemyCount, Maze);
-        ActionManager = new ActionManager();
-        Events = new();
-        DefaultSavePath = defaultSavePath;
+        this.settings = settings;
+        this.countPlayers = countPlayers;
+        this.defaultSavePath = defaultSavePath;
+        startGameState = null;
     }
 
     public GameManager(GameState gameState, string defaultSavePath)
     {
-        EntityManager = new EntityManager(gameState.DataEntities, gameState.DataPlayers);
-        ActionManager = new();
-        TrampsManager = new TrampsManager(gameState.DataTramps, gameState.CountTramps);
-        MenuManager = new();
-        VisionOutput = new();
-        GameStateVisualizer = new();
-        Events = new();
-        Maze = new Maze(gameState.Length, gameState.Width, gameState.Cells, gameState.Scape);
-        DefaultSavePath = defaultSavePath;
+        startGameState = gameState;
+        this.defaultSavePath = defaultSavePath;
     }
 
-    public void SaveGame(string savePath)
+    public IEnumerator<GameState> GetEnumerator()
     {
-        var saveGame = new GameState()
+        if (startGameState is not null)
+            return new GameManagerEnumerator(startGameState, defaultSavePath);
+        return new GameManagerEnumerator(settings!, countPlayers, defaultSavePath);
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    class GameManagerEnumerator : IEnumerator<GameState>
+    {
+        public int TotalTurns { get; set; }
+        public EntityManager EntityManager { get; set; }
+        public ActionManager ActionManager { get; set; }
+        public TrampsManager TrampsManager { get; set; }
+        public MenuManager MenuManager { get; set; }
+        public VisionOutput VisionOutput { get; set; }
+        public GameStateVisualizer GameStateVisualizer;
+        public Events Events;
+        public Maze Maze { get; set; }
+        public string DefaultSavePath { get; set; }
+        public GameState Current { get; set; }
+
+        object IEnumerator.Current => Current;
+
+        public GameManagerEnumerator(
+            DifficultySettings settings,
+            (int, int) countPlayers,
+            string defaultSavePath
+        )
         {
-            TotalTurns = TotalTurns,
-            CountTramps = TrampsManager.CountTramps,
-            DataEntities = EntityManager.DataEntities,
-            DataPlayers = EntityManager.DataPlayers,
-            DataTramps = TrampsManager.DataTramps,
-            Length = Maze.Length,
-            Width = Maze.Width,
-            Cells = Maze.Cells,
-            Scape = Maze.Scape,
-        };
+            TotalTurns = 0;
+            MenuManager = new MenuManager();
+            Maze = new Maze(settings.MazeDimensions);
+            VisionOutput = new();
+            GameStateVisualizer = new();
+            TrampsManager = new TrampsManager(settings.TrampCount, Maze);
+            EntityManager = new EntityManager(countPlayers, settings.EnemyCount, Maze);
+            ActionManager = new ActionManager();
+            Events = new();
+            DefaultSavePath = defaultSavePath;
+            Current = SaveGame(defaultSavePath);
+        }
 
-        var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+        public GameManagerEnumerator(GameState gameState, string defaultSavePath)
+        {
+            EntityManager = new EntityManager(gameState.DataEntities, gameState.DataPlayers);
+            ActionManager = new();
+            TrampsManager = new TrampsManager(gameState.DataTramps, gameState.CountTramps);
+            MenuManager = new();
+            VisionOutput = new();
+            GameStateVisualizer = new();
+            Events = new();
+            Maze = new Maze(gameState.Length, gameState.Width, gameState.Cells, gameState.Scape);
+            DefaultSavePath = defaultSavePath;
+            Current = SaveGame(defaultSavePath);
+        }
 
-        string json = JsonConvert.SerializeObject(saveGame, Formatting.Indented, settings);
-        File.WriteAllText(savePath, json);
-    }
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
 
-    public void ProcessTurns()
-    {
-        Console.Clear();
-        while (true)
+        public bool MoveNext()
         {
             TotalTurns++;
-            SaveGame(DefaultSavePath);
-
             TrampsManager.RestoreAllTrampsCooldown();
 
             foreach (var entity in EntityManager.DataEntities)
@@ -77,128 +96,158 @@ public class GameManager
                 {
                     Events.Victory((DataPlayer)entity);
                     Thread.Sleep(2000);
-                    return;
+                    return false;
                 }
             }
+
+            Current = SaveGame(DefaultSavePath);
+            return true;
         }
-    }
 
-    private bool NextTurn(EntityData entity)
-    {
-        bool move = entity switch
+        public GameState SaveGame(string savePath)
         {
-            DataPlayer player => MovePlayer(player),
-            EnemyIA enemyIA => MoveEnemy(enemyIA),
-            _ => throw new NotImplementedException(),
-        };
-        entity.CurrentActions = entity.TotalActions;
-        return move;
-    }
-
-    private bool MoveEnemy(EnemyIA enemyIA)
-    {
-        while (enemyIA.CurrentActions > 0)
-        {
-            var option = SelecKey(enemyIA);
-            ActionManager.Options(enemyIA, EntityManager.DataPlayers, Maze, option);
-            enemyIA.CurrentActions--;
-
-            var killedPlayer = KillPlayer(enemyIA);
-            if (killedPlayer is not null)
+            var saveGame = new GameState()
             {
-                Events.KillEffect(killedPlayer);
+                TotalTurns = TotalTurns,
+                CountTramps = TrampsManager.CountTramps,
+                DataEntities = EntityManager.DataEntities,
+                DataPlayers = EntityManager.DataPlayers,
+                DataTramps = TrampsManager.DataTramps,
+                Length = Maze.Length,
+                Width = Maze.Width,
+                Cells = Maze.Cells,
+                Scape = Maze.Scape,
+            };
+
+            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+
+            string json = JsonConvert.SerializeObject(saveGame, Formatting.Indented, settings);
+            File.WriteAllText(savePath, json);
+            return saveGame;
+        }
+
+        public void Reset()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool NextTurn(EntityData entity)
+        {
+            bool move = entity switch
+            {
+                DataPlayer player => MovePlayer(player),
+                EnemyIA enemyIA => MoveEnemy(enemyIA),
+                _ => throw new NotImplementedException(),
+            };
+            entity.CurrentActions = entity.TotalActions;
+            return move;
+        }
+
+        private bool MoveEnemy(EnemyIA enemyIA)
+        {
+            while (enemyIA.CurrentActions > 0)
+            {
+                var option = SelecKey(enemyIA);
+                ActionManager.Options(enemyIA, EntityManager.DataPlayers, Maze, option);
+                enemyIA.CurrentActions--;
+
+                var killedPlayer = KillPlayer(enemyIA);
+                if (killedPlayer is not null)
+                {
+                    Events.KillEffect(killedPlayer);
+                }
+            }
+            return true;
+        }
+
+        private bool MovePlayer(DataPlayer player)
+        {
+            player.AsignedSkill.RestoreEffects(EntityManager.DataPlayers, Maze);
+            player.States.ForEach(state => state.RestoreEffect(player));
+
+            while (player.CurrentActions > 0 && player.Turn)
+            {
+                GameStateVisualizer.ShowInfo(player);
+                VisionOutput.PrintPlayerVision(player, EntityManager.DataPlayers, Maze);
+
+                var option = SelecKey(player);
+
+                if (player.States[1] is StateDisorted state)
+                {
+                    option = state.ApplyEffect(player, Maze, option);
+                }
+
+                ActionManager.Options(player, EntityManager.DataPlayers, Maze, option);
+                player.CurrentActions--;
+
+                var killedPlayer = KillPlayer(player);
+                if (killedPlayer is not null)
+                {
+                    Events.KillEffect(killedPlayer);
+                }
+
+                var tramp = TrampsManager.CheckTrampActivation(player);
+                tramp?.ActivateTramp(player, Maze);
+
+                if (tramp is not null)
+                {
+                    Events.TrampEffect(player, tramp);
+                }
+
+                player
+                    .States.Where(state => state is not StateDisorted)
+                    .ToList()
+                    .ForEach(state => state.ApplyEffect(player, Maze));
+
+                if (Victory(player))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private bool Victory(DataPlayer player)
+        {
+            return Maze.Scape == player.CurrentPosition;
+        }
+
+        private GameKey SelecKey(EntityData entity)
+        {
+            if (entity is PlayerIA inst)
+            {
+                Thread.Sleep(250);
+                return inst.Movement(Maze);
+            }
+            else if (entity is EnemyIA enemyInst)
+            {
+                return enemyInst.Movement(EntityManager.DataPlayers, Maze);
+            }
+            else
+            {
+                return GetInfo.GetKey();
             }
         }
-        return true;
-    }
 
-    private bool MovePlayer(DataPlayer player)
-    {
-        player.AsignedSkill.RestoreEffects(EntityManager.DataPlayers, Maze);
-        player.States.ForEach(state => state.RestoreEffect(player));
-
-        while (player.CurrentActions > 0 && player.Turn)
+        private DataPlayer? KillPlayer(EntityData entity)
         {
-            GameStateVisualizer.ShowInfo(player);
-            VisionOutput.PrintPlayerVision(player, EntityManager.DataPlayers, Maze);
-
-            var option = SelecKey(player);
-
-            if (player.States[1] is StateDisorted state)
-            {
-                option = state.ApplyEffect(player, Maze, option);
-            }
-
-            ActionManager.Options(player, EntityManager.DataPlayers, Maze, option);
-            player.CurrentActions--;
-
-            var killedPlayer = KillPlayer(player);
-            if (killedPlayer is not null)
-            {
-                Events.KillEffect(killedPlayer);
-            }
-
-            var tramp = TrampsManager.CheckTrampActivation(player);
-            tramp?.ActivateTramp(player, Maze);
-
-            if (tramp is not null)
-            {
-                Events.TrampEffect(player, tramp);
-            }
-
-            player
-                .States.Where(state => state is not StateDisorted)
-                .ToList()
-                .ForEach(state => state.ApplyEffect(player, Maze));
-
-            if (Victory(player))
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private bool Victory(DataPlayer player)
-    {
-        return Maze.Scape == player.CurrentPosition;
-    }
-
-    private GameKey SelecKey(EntityData entity)
-    {
-        if (entity is PlayerIA inst)
-        {
-            Thread.Sleep(250);
-            return inst.Movement(Maze);
-        }
-        else if (entity is EnemyIA enemyInst)
-        {
-            return enemyInst.Movement(EntityManager.DataPlayers, Maze);
-        }
-        else
-        {
-            return GetInfo.GetKey();
-        }
-    }
-
-    private DataPlayer? KillPlayer(EntityData entity)
-    {
-        foreach (
-            var entities in EntityManager.DataEntities.Where(inst =>
-                inst is not EnemyIA && inst != entity
+            foreach (
+                var entities in EntityManager.DataEntities.Where(inst =>
+                    inst is not EnemyIA && inst != entity
+                )
             )
-        )
-        {
-            if (entities is DataPlayer player)
             {
-                if (entity.CurrentPosition != entities.CurrentPosition)
-                    continue;
-                player.States[2].Activate = true;
-                player.States[2].ApplyEffect(player, Maze);
-                return player;
+                if (entities is DataPlayer player)
+                {
+                    if (entity.CurrentPosition != entities.CurrentPosition)
+                        continue;
+                    player.States[2].Activate = true;
+                    player.States[2].ApplyEffect(player, Maze);
+                    return player;
+                }
             }
-        }
 
-        return null;
+            return null;
+        }
     }
 }

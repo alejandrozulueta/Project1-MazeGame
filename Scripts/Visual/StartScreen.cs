@@ -52,7 +52,9 @@ public class StartScreen
                         (menu.MenuPlayers.Activate(), menu.MenuIAs.Activate()),
                         savePath
                     );
-                    gameManager.ProcessTurns();
+
+                    foreach (GameState item in gameManager) { }
+
                     break;
 
                 case "Cargar Partida":
@@ -63,7 +65,9 @@ public class StartScreen
                     AnsiConsole.Write(new FigletText("¡A Jugar!").Centered().Color(Color.Green));
                     Thread.Sleep(3000);
                     gameManager = new GameManager(savedGame, savePath);
-                    gameManager.ProcessTurns();
+
+                    foreach (var item in gameManager) { }
+
                     break;
 
                 case "Salir":
