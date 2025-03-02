@@ -121,11 +121,11 @@ public class StateDeath : State
         player.Turn = false;
         player.Visible = false;
 
-        maze.Cells[player.CurrentPosition.y, player.CurrentPosition.x].IsCharacter = false;
+        maze[player.CurrentPosition.y, player.CurrentPosition.x].IsCharacter = false;
 
         (int newX, int newY) = DeathPos(maze);
         player.CurrentPosition = (newX, newY);
-        maze.Cells[newY, newX].IsCharacter = true;
+        maze[newY, newX].IsCharacter = true;
     }
 
     private (int, int) DeathPos(IMaze maze)
@@ -134,11 +134,11 @@ public class StateDeath : State
         {
             for (int j = 1; j < maze.Width; j++)
             {
-                if (maze.Cells[i, j].IsWall)
+                if (maze[i, j].IsWall)
                     continue;
-                if (maze.Cells[i, j].IsCharacter)
+                if (maze[i, j].IsCharacter)
                     continue;
-                if (maze.Cells[i, j].IsEnemy)
+                if (maze[i, j].IsEnemy)
                     continue;
 
                 return (j, i);

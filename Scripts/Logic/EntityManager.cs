@@ -55,7 +55,7 @@ public class EntityManager
                 DataPlayers[i] = player;
             }
 
-            maze.Cells[newPos.y, newPos.x].IsCharacter = true;
+            maze[newPos.y, newPos.x].IsCharacter = true;
         }
 
         for (int i = num.players; i < num.players + num.playersIA; i++)
@@ -86,7 +86,7 @@ public class EntityManager
                 DataPlayers[i] = player;
             }
 
-            maze.Cells[newPos.y, newPos.x].IsCharacter = true;
+            maze[newPos.y, newPos.x].IsCharacter = true;
         }
 
         for (int i = num.players + num.playersIA; i < DataEntities.Length; i++)
@@ -101,7 +101,7 @@ public class EntityManager
                 CurrentPosition = newPos,
             };
 
-            maze.Cells[newPos.y, newPos.x].IsEnemy = true;
+            maze[newPos.y, newPos.x].IsEnemy = true;
         }
     }
 

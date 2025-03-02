@@ -69,7 +69,7 @@ public class PlayerIA : DataPlayer
         {
             (int x, int y) NewPos = (random.Next(0, maze.Width), random.Next(0, maze.Length));
 
-            if (!maze.Cells[NewPos.y, NewPos.x].IsWall && !ExploredPos.Contains(NewPos))
+            if (!maze[NewPos.y, NewPos.x].IsWall && !ExploredPos.Contains(NewPos))
             {
                 return NewPos;
             }
@@ -115,7 +115,7 @@ public class EnemyIA : EntityData
         {
             (int x, int y) NewPos = (random.Next(maze.Width), random.Next(maze.Length));
 
-            if (maze.Cells[NewPos.y, NewPos.x].IsWall || CurrentPosition == NewPos)
+            if (maze[NewPos.y, NewPos.x].IsWall || CurrentPosition == NewPos)
                 continue;
             return NewPos;
         }

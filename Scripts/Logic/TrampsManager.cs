@@ -18,7 +18,7 @@ public class TrampsManager
         {
             DataTramps[i] = RandomTramp(maze);
             (int x, int y) = DataTramps[i].Position;
-            maze.Cells[y, x].IsTramp = true;
+            maze[y, x].IsTramp = true;
         }
     }
 

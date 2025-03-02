@@ -52,7 +52,7 @@ public class SkillShowMap : Skill
         {
             for (int x = 0; x < maze.Width; x++)
             {
-                if (maze.Cells[y, x].IsWall)
+                if (maze[y, x].IsWall)
                 {
                     sb.Append('█');
                 }
@@ -108,9 +108,9 @@ public class SkillShowGoal : Skill
 
 public class SkillCreateTemporalWall : Skill
 {
-    int EffectCooldown;
-    bool WasWall;
-    (int, int) ModificateWall;
+    int effectCooldown;
+    (int, int) modificateWall;
+    bool isMod;
 
     public SkillCreateTemporalWall(int totalCooldown)
         : base(totalCooldown) { }
@@ -120,7 +120,7 @@ public class SkillCreateTemporalWall : Skill
 
     private void CreateTemporalWall(DataPlayer player, IMaze maze)
     {
-        EffectCooldown = 3;
+        effectCooldown = 3;
         CurrentCooldown = TotalCooldown;
 
         (int x, int y) = player.CurrentPosition;
@@ -128,45 +128,45 @@ public class SkillCreateTemporalWall : Skill
         switch (GetInfo.GetKey())
         {
             case GameKey.Up:
-                WasWall = CompWall(maze, (y - 1, x));
-                maze.Cells[y - 1, x].IsWall = true;
-                ModificateWall = (y - 1, x);
+                if (!maze[y - 1, x].IsEmpty)
+                    return;
+                isMod = true;
+                maze[y - 1, x].IsWall = true;
+                modificateWall = (y - 1, x);
                 break;
 
             case GameKey.Down:
-                WasWall = CompWall(maze, (y + 1, x));
-                maze.Cells[y + 1, x].IsWall = true;
-                ModificateWall = (y + 1, x);
+                if (!maze[y + 1, x].IsEmpty)
+                    return;
+                isMod = true;
+                maze[y + 1, x].IsWall = true;
+                modificateWall = (y + 1, x);
                 break;
 
             case GameKey.Right:
-                WasWall = CompWall(maze, (y, x + 1));
-                maze.Cells[y, x + 1].IsWall = true;
-                ModificateWall = (y, x + 1);
+                if (!maze[y, x + 1].IsEmpty)
+                    return;
+                isMod = true;
+                maze[y, x + 1].IsWall = true;
+                modificateWall = (y, x + 1);
                 break;
 
             case GameKey.Left:
-                WasWall = CompWall(maze, (y, x - 1));
-                maze.Cells[y, x - 1].IsWall = true;
-                ModificateWall = (y, x - 1);
+                if (!maze[y, x - 1].IsEmpty)
+                    return;
+                isMod = true;
+                maze[y, x - 1].IsWall = true;
+                modificateWall = (y, x - 1);
                 break;
         }
     }
 
-    private bool CompWall(IMaze maze, (int y, int x) pos)
-    {
-        return maze.Cells[pos.y, pos.x].IsWall;
-    }
-
     protected override void Restore(DataPlayer[] dataPlayers, IMaze maze)
     {
-        if (EffectCooldown-- > 0)
+        if (effectCooldown-- > 0 || !isMod)
             return;
 
-        if (WasWall)
-            return;
-
-        maze.Cells[ModificateWall.Item1, ModificateWall.Item2].IsWall = false;
+        maze[modificateWall.Item1, modificateWall.Item2].IsWall = isMod = false;
     }
 }
 
@@ -180,12 +180,12 @@ public class SkillShowTramps : Skill
 
     public void ShowTramps(DataPlayer player, IMaze maze)
     {
-        foreach (var vision in player.Vision)
+        foreach (var (x, y) in player.Vision)
         {
-            if (!maze.Cells[vision.y, vision.x].IsTramp)
+            if (!maze[y, x].IsTramp)
                 continue;
 
-            Console.SetCursorPosition(vision.x, vision.y);
+            Console.SetCursorPosition(x, y);
             Console.Write("T");
         }
 

@@ -78,7 +78,7 @@ public class IAStrategies
 
                         if (!CompPosition(NewX, NewY, Num))
                             continue;
-                        if (maze.Cells[NewY, NewX].IsWall)
+                        if (maze[NewY, NewX].IsWall)
                             continue;
                         if (Num[NewY, NewX] <= Contador && Num[NewY, NewX] > 0)
                             continue;

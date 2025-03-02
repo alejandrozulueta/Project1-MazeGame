@@ -5,6 +5,12 @@ public class Maze : IMaze
     public Cell[,] Cells { get; set; }
     public (int, int) Scape { get; private set; }
 
+    public Cell this[int i, int j]
+    {
+        get => Cells[i, j];
+        set => Cells[i, j] = value;
+    }
+
     public Maze(int lenght, int width, Cell[,] cells, (int, int) scape)
     {
         Length = lenght;
@@ -25,7 +31,7 @@ public class Maze : IMaze
     private void GenerateMaze()
     {
         InitializeMaze();
-        List<(int x, int y)> walls = new List<(int x, int y)>();
+        List<(int x, int y)> walls = [];
         int startX = Randoms.random.Next(Width);
         int startY = Randoms.random.Next(Length);
         Cells[startY, startX].IsWall = false;
@@ -52,7 +58,7 @@ public class Maze : IMaze
         {
             for (int x = 0; x < Width; x++)
             {
-                Cells[y, x] = new Cell { IsWall = true };
+                Cells[y, x] = new();
             }
         }
     }

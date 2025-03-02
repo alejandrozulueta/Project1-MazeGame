@@ -6,7 +6,6 @@ public class GameManager
     public EntityManager EntityManager { get; set; }
     public ActionManager ActionManager { get; set; }
     public TrampsManager TrampsManager { get; set; }
-    public MenuManager MenuManager { get; set; }
     public VisionOutput VisionOutput { get; set; }
     public GameStateVisualizer GameStateVisualizer;
     public Events Events;
@@ -16,7 +15,6 @@ public class GameManager
     public GameManager(DifficultySettings settings, (int, int) countPlayers, string defaultSavePath)
     {
         TotalTurns = 0;
-        MenuManager = new MenuManager();
         Maze = new Maze(settings.MazeDimensions);
         VisionOutput = new();
         GameStateVisualizer = new();
@@ -32,7 +30,6 @@ public class GameManager
         EntityManager = new EntityManager(gameState.DataEntities, gameState.DataPlayers);
         ActionManager = new();
         TrampsManager = new TrampsManager(gameState.DataTramps, gameState.CountTramps);
-        MenuManager = new();
         VisionOutput = new();
         GameStateVisualizer = new();
         Events = new();

@@ -79,27 +79,27 @@ public class ActionManager
 
     private bool IsValid(int x, int y, IMaze maze)
     {
-        return x >= 0 && x < maze.Width && y >= 0 && y < maze.Length && !maze.Cells[y, x].IsWall;
+        return x >= 0 && x < maze.Width && y >= 0 && y < maze.Length && !maze[y, x].IsWall;
     }
 
     private void UpdateNewPosition(int x, int y, bool isEnemy, IMaze maze)
     {
         if (isEnemy)
         {
-            maze.Cells[y, x].IsEnemy = true;
+            maze[y, x].IsEnemy = true;
             return;
         }
-        maze.Cells[y, x].IsCharacter = true;
+        maze[y, x].IsCharacter = true;
     }
 
     private void ClearOldPosition(int x, int y, bool isEnemy, IMaze maze)
     {
         if (isEnemy)
         {
-            maze.Cells[y, x].IsEnemy = false;
+            maze[y, x].IsEnemy = false;
             return;
         }
-        maze.Cells[y, x].IsCharacter = false;
+        maze[y, x].IsCharacter = false;
     }
 
     private void UpdateVision(DataPlayer player, IMaze maze)

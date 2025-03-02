@@ -23,19 +23,19 @@ public class VisionOutput
             int y = Coord.y;
             char symbol = ' ';
 
-            if (maze.Cells[y, x].IsWall)
+            if (maze[y, x].IsWall)
             {
                 symbol = '█';
             }
-            else if (maze.Cells[y, x].IsGoal)
+            else if (maze[y, x].IsGoal)
             {
                 symbol = 'M';
             }
-            else if (maze.Cells[y, x].IsEnemy)
+            else if (maze[y, x].IsEnemy)
             {
                 symbol = 'H';
             }
-            else if (maze.Cells[y, x].IsCharacter)
+            else if (maze[y, x].IsCharacter)
             {
                 foreach (
                     var visiblePlayer in players.Where(p =>

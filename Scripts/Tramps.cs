@@ -61,8 +61,8 @@ public class TrampTeleport : Tramp
 
     private void Teleport(DataPlayer player, IMaze maze)
     {
-        maze.Cells[player.CurrentPosition.y, player.CurrentPosition.x].IsCharacter = false;
+        maze[player.CurrentPosition.y, player.CurrentPosition.x].IsCharacter = false;
         player.CurrentPosition = Randoms.RandomPosition(maze);
-        maze.Cells[player.CurrentPosition.y, player.CurrentPosition.x].IsCharacter = true;
+        maze[player.CurrentPosition.y, player.CurrentPosition.x].IsCharacter = true;
     }
 }
