@@ -17,7 +17,7 @@ public class VisionOutput
             }
         }
 
-        foreach (var Coord in player.Vision)
+        foreach (var Coord in player.Vision.ActualVision)
         {
             int x = Coord.x;
             int y = Coord.y;

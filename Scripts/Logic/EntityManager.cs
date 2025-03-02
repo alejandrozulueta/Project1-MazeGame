@@ -40,14 +40,8 @@ public class EntityManager
                 AsignedSkill = dataPlayer.AsignedSkill!,
                 TotalActions = dataPlayer.Actions,
                 CurrentActions = dataPlayer.Actions,
-                RangeOfVision = range,
-                Vision = SetInitialVision(newPos, range, maze),
-                States = new List<State>
-                {
-                    new StateBlinded(),
-                    new StateDisorted(),
-                    new StateDeath(),
-                },
+                Vision = new(range, newPos, maze),
+                States = [new StateBlinded(), new StateDisorted(), new StateDeath()],
             };
 
             if (DataEntities[i] is DataPlayer player)
@@ -71,14 +65,8 @@ public class EntityManager
                 AsignedSkill = new SkillChangePosition(2),
                 TotalActions = 5,
                 CurrentActions = 5,
-                RangeOfVision = range,
-                Vision = SetInitialVision(newPos, range, maze),
-                States = new List<State>
-                {
-                    new StateBlinded(),
-                    new StateDisorted(),
-                    new StateDeath(),
-                },
+                Vision = new(range, newPos, maze),
+                States = [new StateBlinded(), new StateDisorted(), new StateDeath()],
             };
 
             if (DataEntities[i] is DataPlayer player)
@@ -108,29 +96,5 @@ public class EntityManager
     private char SetChar()
     {
         return chars.Dequeue();
-    }
-
-    private List<(int, int)> SetInitialVision((int x, int y) position, int visionRange, IMaze maze)
-    {
-        var vision = new List<(int, int)>();
-
-        (int startX, int startY) = position;
-        int range = visionRange;
-
-        for (int dx = -range; dx <= range; dx++)
-        {
-            for (int dy = -range; dy <= range; dy++)
-            {
-                int x = startX + dx;
-                int y = startY + dy;
-
-                if (x >= 0 && x < maze.Width && y >= 0 && y < maze.Length)
-                {
-                    vision.Add((x, y));
-                }
-            }
-        }
-
-        return vision;
     }
 }

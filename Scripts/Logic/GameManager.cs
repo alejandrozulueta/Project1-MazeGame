@@ -116,6 +116,7 @@ public class GameManager
 
         while (player.CurrentActions > 0 && player.Turn)
         {
+            player.Vision.UpdateVision(player.CurrentPosition, Maze);
             GameStateVisualizer.ShowInfo(player);
             VisionOutput.PrintPlayerVision(player, EntityManager.DataPlayers, Maze);
 
@@ -188,7 +189,10 @@ public class GameManager
         {
             if (entities is DataPlayer player)
             {
-                if (entity.CurrentPosition != entities.CurrentPosition)
+                if (
+                    entity.CurrentPosition != entities.CurrentPosition
+                    || player.States[2].Activate == true
+                )
                     continue;
                 player.States[2].Activate = true;
                 player.States[2].ApplyEffect(player, Maze);

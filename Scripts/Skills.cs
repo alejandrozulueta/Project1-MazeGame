@@ -180,7 +180,7 @@ public class SkillShowTramps : Skill
 
     public void ShowTramps(DataPlayer player, IMaze maze)
     {
-        foreach (var (x, y) in player.Vision)
+        foreach (var (x, y) in player.Vision.ActualVision)
         {
             if (!maze[y, x].IsTramp)
                 continue;

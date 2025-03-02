@@ -57,10 +57,9 @@ public abstract class EntityData
 
 public class DataPlayer : EntityData
 {
-    public required int RangeOfVision;
-    public required List<(int x, int y)> Vision;
     public required List<State> States;
     public required Skill AsignedSkill;
+    public required Vision Vision;
     public bool Visible = true;
     public bool Turn = true;
 }

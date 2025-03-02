@@ -27,6 +27,7 @@ public abstract class State
 public class StateBlinded : State
 {
     private List<(int, int)> OldVision;
+    int range;
 
     public StateBlinded()
     {
@@ -43,34 +44,21 @@ public class StateBlinded : State
 
     protected virtual void Blind(DataPlayer player, IMaze maze)
     {
-        OldVision = [.. OldVision.Union(player.Vision)];
-        player.Vision.Clear();
+        OldVision = [.. OldVision.Union(player.Vision.ActualVision)];
+        player.Vision.ActualVision.Clear();
 
-        int startX = player.CurrentPosition.x;
-        int startY = player.CurrentPosition.y;
-        int range = player.RangeOfVision / 2;
-
-        for (int dx = -range; dx <= range; dx++)
+        if (range == 0)
         {
-            for (int dy = -range; dy <= range; dy++)
-            {
-                int x = startX + dx;
-                int y = startY + dy;
-
-                if (x >= 0 && x < maze.Width && y >= 0 && y < maze.Length)
-                {
-                    if (player.Vision.Contains((x, y)))
-                        continue;
-
-                    player.Vision.Add((x, y));
-                }
-            }
+            range = player.Vision.rangeOfVision;
+            player.Vision.rangeOfVision = range / 2;
         }
     }
 
     protected virtual void RestoreVision(DataPlayer player)
     {
-        player.Vision = [.. player.Vision.Union(OldVision)];
+        player.Vision.ActualVision = [.. player.Vision.ActualVision.Union(OldVision)];
+        player.Vision.rangeOfVision = range;
+        range = 0;
     }
 
     public override bool RestoreEffect(DataPlayer player)

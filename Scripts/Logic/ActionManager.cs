@@ -12,7 +12,6 @@ public class ActionManager
             )
             {
                 Movement(player, maze, key);
-                UpdateVision(player, maze);
             }
 
             if (key == GameKey.Space)
@@ -100,29 +99,5 @@ public class ActionManager
             return;
         }
         maze[y, x].IsCharacter = false;
-    }
-
-    private void UpdateVision(DataPlayer player, IMaze maze)
-    {
-        int startX = player.CurrentPosition.x;
-        int startY = player.CurrentPosition.y;
-        int range = player.RangeOfVision;
-
-        for (int dx = -range; dx <= range; dx++)
-        {
-            for (int dy = -range; dy <= range; dy++)
-            {
-                int x = startX + dx;
-                int y = startY + dy;
-
-                if (x >= 0 && x < maze.Width && y >= 0 && y < maze.Length)
-                {
-                    if (player.Vision.Contains((x, y)))
-                        continue;
-
-                    player.Vision.Add((x, y));
-                }
-            }
-        }
     }
 }
