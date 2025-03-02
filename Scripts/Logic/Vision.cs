@@ -4,13 +4,11 @@ public class Vision
     public List<(int x, int y)> ActualVision;
     private (int x, int y) lastPosition;
 
-    public Vision(int range, (int x, int y) position, IMaze maze)
+    public Vision(int range, (int x, int y) position)
     {
         rangeOfVision = range;
         lastPosition = position;
         ActualVision = [];
-
-        UpdateVision(position, maze);
     }
 
     public void UpdateVision((int x, int y) position, IMaze maze)

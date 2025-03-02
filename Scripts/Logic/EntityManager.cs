@@ -40,7 +40,7 @@ public class EntityManager
                 AsignedSkill = dataPlayer.AsignedSkill!,
                 TotalActions = dataPlayer.Actions,
                 CurrentActions = dataPlayer.Actions,
-                Vision = new(range, newPos, maze),
+                Vision = new(range, newPos),
                 States = [new StateBlinded(), new StateDisorted(), new StateDeath()],
             };
 
@@ -65,7 +65,7 @@ public class EntityManager
                 AsignedSkill = new SkillChangePosition(2),
                 TotalActions = 5,
                 CurrentActions = 5,
-                Vision = new(range, newPos, maze),
+                Vision = new(range, newPos),
                 States = [new StateBlinded(), new StateDisorted(), new StateDeath()],
             };
 
